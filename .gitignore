@@ -1,5 +1,10 @@
 
 ### Performance Comparision of Various Machine Learning Techniques
+# Install Required packages
+pacman::p_load(stringr,knitr,nnet,caret,VGAM,MASS,mda,klaR,devtools,mda,kernlab,e1071,rpart,
+rpart.plot,RWeka,ipred,randomForest,gbm,h2o,microbenchmark,dplyr,ggplot2,gridExtra,
+RColorBrewer)
+
 # Initialize
 userdir=setwd()
 DV=data$depe
