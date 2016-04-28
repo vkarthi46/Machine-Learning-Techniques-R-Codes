@@ -1,0 +1,235 @@
+
+### Performance Comparision of Various Machine Learning Techniques
+# Initialize
+userdir=setwd()
+DV=data$depe
+IDV=data[,-depe]
+cm=list()
+nlev=nlevels(DV)
+
+###### Classification Algorithem
+
+### Logistic Regression
+# DV=Dependent Variable,IDV=Independent Variables
+model=vglm(DV~IDV, family = "binomial", data = data, maxit = 100) 
+prob=predict(model,IDV,type="response") 
+predicted=apply(prob,1,which.max) 
+pred[which(predicted=="1")]=levels(DV)[1] 
+pred[which(predicted=="0")]=levels(DV)[0] 
+predicted=as.factor(predicted)
+c=union(predicted,DV)
+mtab=table(factor(predicted,c),factor(DV,c))
+cm[[1]]=c("Logistic Regression","GLM",confusionMatrix(mtab)) 
+cm[[1]]$table
+
+### Linear Discriminant Analysis
+model=lda(DV~IDV,data=data) 
+predicted=predict(model,IDV)$class 
+
+# Confusion Matrix
+c=union(predicted,DV)
+mtab=table(factor(predicted,c),factor(DV,c))
+cm[[2]]=c("Linear Discriminant Analysis","LDA",confusionMatrix(mtab))
+cm[[2]]$table
+# Over All Accuracy
+cm[[2]]$overall[1]
+
+### Regularized Discriminant Analysis
+model=rda(DV~IDV,data=data,gamma = 0.05,lambda = 0.01) 
+predicted=predict(model,IDV)$class 
+
+# Confusion Matrix
+c=union(predicted,DV)
+mtab=table(factor(predicted,c),factor(DV,c))
+cm[[3]]=c("Regularized Discriminant Analysis","RDA",confusionMatrix(mtab))
+cm[[3]]$table
+# Over All Accuracy
+cm[[3]]$overall[1]
+
+### Flexible Discriminant Analysis
+model=fda(DV~IDV,data=data) 
+predicted=predict(model,IDV)$class 
+
+# Confusion Matrix
+c=union(predicted,DV)
+mtab=table(factor(predicted,c),factor(DV,c))
+cm[[4]]=c("Flexible Discriminant Analysis","FDA",confusionMatrix(mtab))
+cm[[4]]$table
+# Over All Accuracy
+cm[[4]]$overall[1]
+
+### Support Vector Machine
+model<-ksvm(DV~IDV,data=data) 
+predicted=predict(model,data,type="response") 
+c=union(predicted,DV)
+mtab=table(factor(predicted,c),factor(DV,c))
+cm[[5]]=c("Support Vector Machine","SVM",confusionMatrix(mtab))
+cm[[5]]$table
+
+# Over All Accuracy
+cm[[5]]$overall[1]
+
+### Artificial Neural Network
+model=nnet(DV~IDV,data=data,size = 4, decay = 0.0001, maxit = 700, trace = FALSE)
+#import the function from Github
+# source_url('https://gist.githubusercontent.com/Peque/41a9e20d6687f2f3108d/raw/85e14f3a292e126f1454864427e3a189c2fe33f3/nnet_plot_update.r')
+# plot.nnet(model, alpha.val = 0.5, cex= 0.7, circle.col = list('lightblue', 'white'), bord.col = 'black')
+predicted=predict(model,IDV,type="class") 
+predicted=as.factor(predicted)
+c=union(predicted,DV)
+mtab=table(factor(predicted,c),factor(DV,c))
+cm[[6]]=c("Artificial Neural Network","NNET",confusionMatrix(mtab))
+cm[[6]]$table
+# Over All Accuracy
+cm[[6]]$overall[1]
+
+
+###  k-Nearest Neighbors
+model=knn3(DV~IDV,data=data,k=nlev+1) 
+predicted=predict(model,IDV,type="class") 
+c=union(predicted,DV)
+mtab=table(factor(predicted,c),factor(DV,c))
+cm[[7]]=c("k-Nearest Neighbors","KNN",confusionMatrix(mtab))
+cm[[7]]$table
+
+# Over All Accuracy
+cm[[7]]$overall[1]
+
+### Naive Bayes
+model=naiveBayes(DV~IDV,data=data) 
+predicted=predict(model,IDV) 
+c=union(predicted,DV)
+mtab=table(factor(predicted,c),factor(DV,c))
+cm[[8]]=c("Naive Bayes","NBAYES",confusionMatrix(mtab))
+cm[[8]]$table
+
+# Over All Accuracy
+cm[[8]]$overall[1]
+
+### Classification and Regression Trees(CART)
+model=rpart(DV~IDV,data=data) 
+# prp(model, faclen=3)
+predicted=predict(model, IDV ,type="class") 
+c=union(predicted,DV)
+mtab=table(factor(predicted,c),factor(DV,c))
+cm[[9]]=c("classification and Regression Trees","CART",confusionMatrix(mtab))
+cm[[9]]$table
+
+# Over All Accuracy
+cm[[9]]$overall[1]
+
+### C4.5
+model=J48(DV~IDV,data=data) 
+predicted=predict(model,IDV) 
+c=union(predicted,DV)
+mtab=table(factor(predicted,c),factor(DV,c))
+cm[[10]]=c("C4.5","C45",confusionMatrix(mtab))
+cm[[10]]$table
+
+# Over All Accuracy
+cm[[10]]$overall[1]
+
+### C5 Bagging CART
+model=bagging(DV~IDV,data=data) 
+predicted=predict(model,IDV) 
+c=union(predicted,DV)
+mtab=table(factor(predicted,c),factor(DV,c))
+cm[[11]]=c("Bagging CART","BAG-CART",confusionMatrix(mtab))
+cm[[11]]$table
+
+# Over All Accuracy
+cm[[11]]$overall[1]
+
+### Random Forest
+model=randomForest(DV~IDV,data=data) 
+pred=predict(model,IDV) 
+c=union(predicted,DV)
+mtab=table(factor(predicted,c),factor(DV,c))
+cm[[12]]=c("Random Forest","RF",confusionMatrix(mtab))
+cm[[12]]$table
+
+# Over All Accuracy
+cm[[12]]$overall[1]
+
+### Gradient Boosting
+model=gbm(DV~IDV,data=data,n.trees=5000,interaction.depth=nlev,shrinkage=0.001,bag.fraction=0.8,distribution="multinomial",verbose=FALSE,n.cores=4) 
+prob=predict(model,x,n.trees=5000,type="response")
+predicted=apply(prob,1,which.max)
+predicted[which(pred=="1")]=levels(DV)[1]
+predicted[which(pred=="0")]=levels(DV)[0]
+predicted=as.factor(predicted)
+c=union(predicted,DV)
+mtab=table(factor(predicted,c),factor(DV,c))
+cm[[13]]=c("Gradient Boosted Machine","GBM",confusionMatrix(mtab))
+cm[[13]]$table
+
+# Over All Accuracy
+cm[[13]]$overall[1]
+
+
+
+###################### Performance Comparison
+localH2O=h2o.init(nthreads=-1)
+h2o.no_progress()
+data.hex=h2o.uploadFile(path=paste0(userdir,"/data.csv"),destination_frame="data.hex")
+mbm=microbenchmark(
+m1=vglm(DV~IDV, family = "binomial", data = data, maxit = 100),
+m2=lda(DV~IDV,data=data), 
+m3=rda(DV~IDV,data=data,gamma = 0.05,lambda = 0.01), 
+m4=fda(DV~IDV,data=data), 
+m5=ksvm(DV~IDV,data=data), 
+m6=nnet(DV~IDV,data=data,size = 4, decay = 0.0001, maxit = 700, trace = FALSE),
+m7=knn3(DV~IDV,data=data,k=nlev+1), 
+m8=naiveBayes(DV~IDV,data=data), 
+m9=rpart(DV~IDV,data=data), 
+m10=J48(DV~IDV,data=data),
+m11=bagging(DV~IDV,data=data), 
+m12=randomForest(DV~IDV,data=data), 
+m13=gbm(DV~IDV,data=data,n.trees=5000,interaction.depth=nlev,shrinkage=0.001,bag.fraction=0.8,distribution="multinomial",verbose=FALSE,n.cores=4),
+times=5)
+h2o.shutdown(prompt = FALSE)
+
+models=length(cm)
+mbm$expr=rep(sapply(1:models, function(i) {cm[[i]][[2]]}),5)
+mbm=aggregate(x=mbm$time,by=list(Model=mbm$expr),FUN=mean)
+mbm$x=mbm$x/min(mbm$x)
+results=sapply (1:models, function(i) {c(cm[[i]][[1]],cm[[i]][[2]],mbm$x[i],cm[[i]]$overall[1:6])})
+row.names(results)=c("Description","Model","Model_Time_X",names(cm[[1]]$overall[1:6]))
+results=as.data.frame(t(results))
+results[,3:9]=sapply(3:9,function(i){results[,i]<-as.numeric(levels(results[,i])[results[,i]])})
+results=results[,-(8:9)]
+results=arrange(results,desc(Accuracy))
+h2o.shutdown(prompt = FALSE)
+res<-data.frame(Model=results$Model,Accuracy=results$Accuracy,Speed=1/results$Model_Time_X,Overall=results$Accuracy/results$Model_Time_X)
+
+myPalette=colorRampPalette(rev(brewer.pal(12, "Set3")))
+sc =scale_colour_gradientn(colours = myPalette(256), limits=c(0.8, 1))
+g<-ggplot(res,aes(x=reorder(Model,-Accuracy),y=Accuracy,fill=Model))+
+geom_bar(stat="identity")+
+coord_polar(theta="x",direction=1)+
+labs(x="Machine Learning Model",y="Prediction Accuracy")+
+theme(legend.position="bottom",legend.box="horizontal")+
+ggtitle('Car Evaluation Dataset Accuracy Performance')
+g
+
+g=ggplot(res,aes(x=reorder(Model,-Speed),y=Speed,fill=Model))+
+geom_bar(stat="identity")+
+coord_polar(theta="x",direction=1)+
+labs(x="Machine Learning Model",y="Prediction Speed")+
+theme(legend.position="bottom",legend.box="horizontal")+
+ggtitle('Car Evaluation Dataset Speed Performance')
+g
+
+g=ggplot(res,aes(x=reorder(Model,-Overall),y=Overall,fill=Model))+
+geom_bar(stat="identity")+
+coord_polar(theta="x",direction=1)+
+labs(x="Machine Learning Model",y="Prediction Overall")+
+theme(legend.position="bottom",legend.box="horizontal")+
+ggtitle('Car Evaluation Dataset Overall Performance')
+g
+
+kable(res)
+
+
+
+
