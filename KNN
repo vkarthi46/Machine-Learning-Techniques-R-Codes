@@ -1,6 +1,6 @@
 # Installing required packages
 if(!require("pacman")){install.packages("pacman");library(pacman);}
-pacman::p_load(stringr,knitr,nnet,caret,VGAM,MASS,mda,klaR,devtools,mda,kernlab,e1071,rpart,
+pacman::p_load(reshape,stringr,knitr,nnet,caret,VGAM,MASS,mda,klaR,devtools,mda,kernlab,e1071,rpart,
                rpart.plot,RWeka,ipred,randomForest,gbm,h2o,microbenchmark,dplyr,ggplot2,gridExtra,
                RColorBrewer)
 
