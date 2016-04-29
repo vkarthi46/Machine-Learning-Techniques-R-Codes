@@ -1,0 +1,39 @@
+# Installing required packages
+if(!require("pacman")){install.packages("pacman");library(pacman);}
+pacman::p_load(stringr,knitr,nnet,caret,VGAM,MASS,mda,klaR,devtools,mda,kernlab,e1071,rpart,
+               rpart.plot,RWeka,ipred,randomForest,gbm,h2o,microbenchmark,dplyr,ggplot2,gridExtra,
+               RColorBrewer)
+
+data=read.csv()
+names(data)
+# Initialize
+userdir=setwd("C:\\Users\\vkarth2\\Desktop\\Divya")
+DV=data$y
+IDV=data[,-length(data)]
+cm=list()
+nlev=nlevels(DV)
+  
+###  k-Nearest Neighbors
+model=knn3(y~.,data=data,k=nlev+1) 
+predicted=predict(model,IDV,type="class") 
+c=union(predicted,data$y)
+
+mtab=table(factor(predicted,c),factor(data$y,c))
+cm[[1]]=c("k-Nearest Neighbors","KNN",confusionMatrix(mtab))
+cm[[1]]$table  
+
+### Artificial Neural Network
+model_ann=nnet(y~.,data=data,size = 4, decay = 0.0001, maxit = 700, trace = FALSE)
+#import the function from Github
+source_url('https://gist.githubusercontent.com/Peque/41a9e20d6687f2f3108d/raw/85e14f3a292e126f1454864427e3a189c2fe33f3/nnet_plot_update.r')
+plot.nnet(model_ann, alpha.val = 0.5, cex= 0.7, circle.col = list('lightblue', 'white'), bord.col = 'black')
+predicted=predict(model_ann,IDV,type="class") 
+predicted=as.factor(predicted)
+c=union(predicted,data$y)
+mtab=table(factor(predicted,c),factor(data$y,c))
+cm[[1]]=c("Artificial Neural Network","NNET",confusionMatrix(mtab))
+cm[[1]]$table
+# Over All Accuracy
+cm[[1]]$overall[1]
+
+
